@@ -1368,7 +1368,11 @@ in
 
   compactor = callPackage ../applications/networking/compactor { };
 
-  consul = callPackage ../servers/consul { };
+  consul = callPackage ../servers/consul {
+    # Version 1.6.0 fails to build with go 1.13 due to broken dependency:
+    #   go/src/github.com/hashicorp/consul/vendor/github.com/envoyproxy/go-control-plane/envoy/type/http_status.pb.go:11:2: code in directory /build/go/src/github.com/hashicorp/consul/vendor/github.com/envoyproxy/protoc-gen-validate/validate expects import "github.com/lyft/protoc-gen-validate/validate"
+    buildGoPackage = buildGo112Package;
+  };
 
   consul-alerts = callPackage ../servers/monitoring/consul-alerts { };
 
@@ -7904,7 +7908,11 @@ in
     inherit (darwin.apple_sdk.frameworks) Security Foundation;
   };
 
-  go = go_1_12;
+  go_1_13 = callPackage ../development/compilers/go/1.13.nix {
+    inherit (darwin.apple_sdk.frameworks) Security Foundation;
+  };
+
+  go = go_1_13;
 
   go-repo-root = callPackage ../development/tools/go-repo-root { };
 
@@ -14340,14 +14348,21 @@ in
   buildGo112Package = callPackage ../development/go-packages/generic {
     go = buildPackages.go_1_12;
   };
+  buildGo113Package = callPackage ../development/go-packages/generic {
+    go = buildPackages.go_1_13;
+  };
 
-  buildGoPackage = buildGo112Package;
+  buildGoPackage = buildGo113Package;
 
   buildGo112Module = callPackage ../development/go-modules/generic {
     go = buildPackages.go_1_12;
   };
 
-  buildGoModule = buildGo112Module;
+  buildGo113Module = callPackage ../development/go-modules/generic {
+    go = buildPackages.go_1_13;
+  };
+
+  buildGoModule = buildGo113Module;
 
   go2nix = callPackage ../development/tools/go2nix { };
 
@@ -17519,7 +17534,11 @@ in
     poppler = poppler_0_61;
   };
 
-  perkeep = callPackage ../applications/misc/perkeep { };
+  perkeep = callPackage ../applications/misc/perkeep {
+    # Revision c9f78d02adf9740f3b8d403a1418554293cc9f41 fails to build with go 1.13 due to a dependency:
+    #   go: bazil.org/fuse@v0.0.0-20160811212531-371fbbdaa898: Get https://proxy.golang.org/bazil.org/fuse/@v/v0.0.0-20160811212531-371fbbdaa898.mod: dial tcp: lookup proxy.golang.org on [::1]:53: read udp [::1]:36526->[::1]:53: read: connection refused
+    buildGoPackage = buildGo112Package;
+  };
 
   canto-curses = callPackage ../applications/networking/feedreaders/canto-curses { };
 
